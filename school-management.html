@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Greenfield Campus — School Management</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#16324F;
+  --navy-dark:#0E2436;
+  --navy-light:#24476D;
+  --forest:#2F5233;
+  --gold:#B98B2A;
+  --gold-light:#E8C874;
+  --gold-pale:#FBF1DC;
+  --maroon:#A83232;
+  --maroon-pale:#F7E4E1;
+  --bg:#EEF1F0;
+  --paper:#FFFFFF;
+  --ink:#1C2530;
+  --muted:#5B6472;
+  --border:#DCE0DE;
+  --shadow: 0 2px 10px rgba(15,30,45,.08);
+  --radius:10px;
+}
+*{box-sizing:border-box;}
+body{margin:0;font-family:'Public Sans',sans-serif;color:var(--ink);background:var(--bg);}
+h1,h2,h3,.display{font-family:'Fraunces',serif;}
+.mono{font-family:'IBM Plex Mono',monospace;}
+button{font-family:inherit;cursor:pointer;}
+img{max-width:100%;display:block;}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-thumb{background:#c6ccca;border-radius:4px;}
+
+#bg-layer{position:fixed;inset:0;z-index:-2;background-size:cover;background-position:center;transition:background-image .4s ease;}
+#bg-tint{position:fixed;inset:0;z-index:-1;background:linear-gradient(160deg, rgba(14,36,54,.90), rgba(22,50,79,.86));}
+
+.shell{display:flex;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{width:230px;flex-shrink:0;background:var(--navy-dark);color:#fff;display:flex;flex-direction:column;padding:22px 0;position:sticky;top:0;height:100vh;}
+.brand{display:flex;align-items:center;gap:10px;padding:0 20px 22px;border-bottom:1px solid rgba(255,255,255,.12);margin-bottom:14px;}
+.brand-badge{width:38px;height:38px;border-radius:8px;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:700;color:var(--navy-dark);font-size:18px;flex-shrink:0;}
+.brand-name{font-family:'Fraunces',serif;font-size:16px;font-weight:600;line-height:1.15;}
+.brand-sub{font-size:11px;color:var(--gold-light);letter-spacing:.06em;text-transform:uppercase;}
+.nav{display:flex;flex-direction:column;gap:2px;padding:0 12px;flex:1;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:8px;color:rgba(255,255,255,.75);background:transparent;border:none;text-align:left;font-size:14px;font-weight:500;}
+.nav-item .ic{width:20px;height:20px;flex-shrink:0;}
+.nav-item:hover{background:rgba(255,255,255,.07);color:#fff;}
+.nav-item.active{background:var(--gold);color:var(--navy-dark);}
+.sidebar-foot{padding:12px 20px 0;font-size:11px;color:rgba(255,255,255,.4);border-top:1px solid rgba(255,255,255,.1);margin-top:10px;padding-top:14px;}
+
+/* MAIN */
+.main{flex:1;min-width:0;display:flex;flex-direction:column;}
+.topbar{background:rgba(255,255,255,.94);backdrop-filter:blur(6px);border-bottom:1px solid var(--border);padding:14px 26px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:10;flex-wrap:wrap;}
+.page-title{font-family:'Fraunces',serif;font-size:21px;font-weight:600;margin:0;flex-shrink:0;}
+.search-wrap{position:relative;flex:1;min-width:180px;max-width:340px;}
+.search-wrap input{width:100%;padding:9px 12px 9px 34px;border-radius:8px;border:1px solid var(--border);font-size:13.5px;background:#fff;}
+.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--muted);}
+.topbar-actions{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap;}
+.btn{border-radius:8px;border:1px solid var(--border);background:#fff;padding:9px 14px;font-size:13.5px;font-weight:600;display:inline-flex;align-items:center;gap:7px;color:var(--ink);white-space:nowrap;}
+.btn:hover{background:#f3f4f2;}
+.btn svg{width:15px;height:15px;}
+.btn-primary{background:var(--forest);border-color:var(--forest);color:#fff;}
+.btn-primary:hover{background:#274a2b;}
+.btn-gold{background:var(--gold);border-color:var(--gold);color:var(--navy-dark);}
+.btn-gold:hover{background:#a67c24;}
+.btn-danger{background:#fff;border-color:var(--maroon);color:var(--maroon);}
+.btn-danger:hover{background:var(--maroon-pale);}
+.btn-ghost{background:transparent;border-color:transparent;}
+.btn-sm{padding:6px 10px;font-size:12.5px;}
+
+.content{padding:22px 26px 60px;overflow-y:auto;}
+.section{display:none;}
+.section.active{display:block;}
+
+/* STAT CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:22px;}
+.stat-card{background:var(--paper);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);border-left:4px solid var(--gold);}
+.stat-card.forest{border-left-color:var(--forest);}
+.stat-card.navy{border-left-color:var(--navy);}
+.stat-card.maroon{border-left-color:var(--maroon);}
+.stat-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin:0 0 6px;}
+.stat-value{font-family:'Fraunces',serif;font-size:28px;font-weight:600;margin:0;}
+.stat-sub{font-size:12px;color:var(--muted);margin-top:4px;}
+
+.panel{background:var(--paper);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 20px;margin-bottom:20px;}
+.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;}
+.panel-title{font-family:'Fraunces',serif;font-size:16.5px;font-weight:600;margin:0;}
+
+/* PEOPLE / ID CARDS */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px;}
+.id-card{background:var(--paper);border-radius:12px;box-shadow:var(--shadow);overflow:hidden;position:relative;border:1px solid var(--border);}
+.id-stripe{height:7px;width:100%;}
+.id-body{padding:14px 14px 12px;display:flex;gap:12px;align-items:flex-start;}
+.id-photo{width:54px;height:54px;border-radius:8px;object-fit:cover;flex-shrink:0;background:var(--navy);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-family:'Fraunces',serif;font-size:18px;border:2px solid var(--gold-light);}
+.id-info{min-width:0;}
+.id-name{font-weight:600;font-size:14.5px;line-height:1.25;margin:0 0 2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.id-meta{font-size:12px;color:var(--muted);margin:0;}
+.id-roll{display:inline-block;margin-top:6px;font-size:11px;padding:2px 7px;border-radius:5px;background:var(--gold-pale);color:#7a5817;font-weight:600;}
+.id-foot{border-top:1px dashed var(--border);padding:8px 12px;display:flex;justify-content:flex-end;gap:6px;background:#FAFBFA;}
+.icon-btn{width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;}
+.icon-btn svg{width:14px;height:14px;}
+.icon-btn:hover{background:#f2f3f1;}
+.icon-btn.danger:hover{background:var(--maroon-pale);border-color:var(--maroon);color:var(--maroon);}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;font-size:13.5px;}
+thead th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);padding:8px 10px;border-bottom:2px solid var(--border);font-weight:700;}
+tbody td{padding:9px 10px;border-bottom:1px solid var(--border);}
+tbody tr:hover{background:#F7F8F6;}
+.table-wrap{overflow-x:auto;}
+.pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:700;}
+.pill-present{background:#E4F1E5;color:#25602c;}
+.pill-absent{background:var(--maroon-pale);color:#8a2626;}
+.pill-paid{background:#E4F1E5;color:#25602c;}
+.pill-due{background:#FCEFDD;color:#8a5a12;}
+select, input[type=text], input[type=number], input[type=date]{font-family:inherit;padding:7px 9px;border:1px solid var(--border);border-radius:7px;font-size:13px;background:#fff;}
+
+.empty{text-align:center;padding:40px 20px;color:var(--muted);}
+.empty svg{width:40px;height:40px;margin-bottom:10px;opacity:.5;}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(14,25,36,.55);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;}
+.overlay.open{display:flex;}
+.modal{background:#fff;border-radius:14px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--border);}
+.modal-head h3{margin:0;font-family:'Fraunces',serif;font-size:18px;}
+.modal-body{padding:18px 20px;}
+.modal-foot{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:5px;}
+.field input, .field select{width:100%;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.photo-upload{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.photo-preview{width:64px;height:64px;border-radius:10px;object-fit:cover;background:var(--bg);border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px;text-align:center;}
+.file-btn{position:relative;overflow:hidden;}
+.file-btn input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
+
+.bg-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.bg-opt{border-radius:10px;height:70px;background-size:cover;background-position:center;border:2px solid transparent;position:relative;overflow:hidden;}
+.bg-opt.selected{border-color:var(--gold);}
+.bg-opt span{position:absolute;bottom:0;left:0;right:0;background:rgba(14,25,36,.72);color:#fff;font-size:11px;padding:4px 6px;}
+.bg-colors{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.bg-swatch{border-radius:10px;height:48px;border:2px solid transparent;cursor:pointer;position:relative;}
+.bg-swatch.selected{border-color:var(--gold);}
+.bg-swatch.selected::after{content:"";position:absolute;inset:0;border-radius:8px;border:2px solid rgba(255,255,255,.8);}
+
+.toast{position:fixed;bottom:20px;right:20px;background:var(--forest);color:#fff;padding:12px 18px;border-radius:9px;font-size:13.5px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:200;display:flex;align-items:center;gap:8px;transform:translateY(20px);opacity:0;transition:all .25s ease;pointer-events:none;}
+.toast.show{transform:translateY(0);opacity:1;}
+
+.mobile-nav{display:none;}
+
+@media print{
+  .sidebar,.topbar,.icon-btn,.id-foot,.no-print{display:none !important;}
+  #bg-layer,#bg-tint{display:none !important;}
+  body{background:#fff;}
+  .content{padding:0;}
+  .section{display:none !important;}
+  .section.print-active{display:block !important;}
+  .panel{box-shadow:none;border:1px solid #ccc;}
+}
+
+@media (max-width: 860px){
+  .sidebar{position:fixed;bottom:0;left:0;right:0;top:auto;width:100%;height:64px;flex-direction:row;align-items:center;padding:0 6px;z-index:50;}
+  .brand,.sidebar-foot{display:none;}
+  .nav{flex-direction:row;flex:1;justify-content:space-around;padding:0;overflow-x:auto;}
+  .nav-item{flex-direction:column;gap:3px;font-size:9.5px;padding:8px 6px;white-space:nowrap;}
+  .main{padding-bottom:70px;}
+  .content{padding:16px;}
+  .topbar{padding:12px 16px;}
+  .page-title{font-size:18px;}
+  .field-row{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div id="bg-layer"></div>
+<div id="bg-tint"></div>
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-badge" id="brandBadge">G</div>
+      <div>
+        <div class="brand-name" id="brandName">Greenfield Campus</div>
+        <div class="brand-sub">Records office</div>
+      </div>
+    </div>
+    <nav class="nav" id="nav">
+      <button class="nav-item active" data-section="dashboard"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span>Dashboard</span></button>
+      <button class="nav-item" data-section="students"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg><span>Students</span></button>
+      <button class="nav-item" data-section="teachers"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg><span>Teachers</span></button>
+      <button class="nav-item" data-section="attendance"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/><path d="m8.5 15 2 2 4-4"/></svg><span>Attendance</span></button>
+      <button class="nav-item" data-section="marks"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5V5a2 2 0 0 1 2-2h11a1 1 0 0 1 1 1v14.5"/><path d="M6.5 20a1.5 1.5 0 0 1 0-3H19"/></svg><span>Marks</span></button>
+      <button class="nav-item" data-section="fees"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="6" width="20" height="13" rx="2"/><circle cx="12" cy="12.5" r="3"/><path d="M6 6V4.8C6 3.8 6.8 3 7.8 3h8.4c1 0 1.8.8 1.8 1.8V6"/></svg><span>Fees</span></button>
+    </nav>
+    <button class="nav-item" id="btnSettings" style="border-top:1px solid rgba(255,255,255,.12);margin-top:6px;padding-top:12px;"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg><span>Settings</span></button>
+    <div class="sidebar-foot">Data saved on this device.</div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar no-print">
+      <h1 class="page-title" id="pageTitle">Dashboard</h1>
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="searchInput" placeholder="Search students, teachers, roll no...">
+      </div>
+      <div class="topbar-actions">
+        <button class="btn" id="btnPrint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"/><rect x="6" y="14" width="12" height="8"/><path d="M6 18H4a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2"/></svg>Print</button>
+        <button class="btn btn-gold" id="btnSave"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Save data</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <section class="section active" id="sec-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card navy"><p class="stat-label">Students</p><p class="stat-value" id="statStudents">0</p><p class="stat-sub" id="statStudentsSub">Across all classes</p></div>
+          <div class="stat-card forest"><p class="stat-label">Teachers</p><p class="stat-value" id="statTeachers">0</p><p class="stat-sub">On staff</p></div>
+          <div class="stat-card" style="border-left-color:var(--gold)"><p class="stat-label">Attendance today</p><p class="stat-value" id="statAttendance">—</p><p class="stat-sub" id="statAttendanceSub">No records for today yet</p></div>
+          <div class="stat-card maroon"><p class="stat-label">Fees due</p><p class="stat-value" id="statFeesDue">Rs 0</p><p class="stat-sub" id="statFeesSub">0 accounts pending</p></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3 class="panel-title">Recently added students</h3></div>
+          <div id="recentStudents" class="card-grid"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3 class="panel-title">Staff directory</h3></div>
+          <div id="recentTeachers" class="card-grid"></div>
+        </div>
+      </section>
+
+      <!-- STUDENTS -->
+      <section class="section" id="sec-students">
+        <div class="panel">
+          <div class="panel-head">
+            <h3 class="panel-title">All students</h3>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <select id="classFilter" class="btn-sm"><option value="">All classes</option></select>
+              <button class="btn btn-primary btn-sm" id="btnAddStudent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M12 5v14M5 12h14"/></svg>Add student</button>
+            </div>
+          </div>
+          <div id="studentGrid" class="card-grid"></div>
+        </div>
+      </section>
+
+      <!-- TEACHERS -->
+      <section class="section" id="sec-teachers">
+        <div class="panel">
+          <div class="panel-head">
+            <h3 class="panel-title">All teachers</h3>
+            <button class="btn btn-primary btn-sm" id="btnAddTeacher"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M12 5v14M5 12h14"/></svg>Add teacher</button>
+          </div>
+          <div id="teacherGrid" class="card-grid"></div>
+        </div>
+      </section>
+
+      <!-- ATTENDANCE -->
+      <section class="section" id="sec-attendance">
+        <div class="panel">
+          <div class="panel-head">
+            <h3 class="panel-title">Mark attendance</h3>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <input type="date" id="attDate">
+              <select id="attClass"></select>
+            </div>
+          </div>
+          <div class="table-wrap"><table id="attTable"><thead><tr><th>Roll</th><th>Name</th><th>Status</th></tr></thead><tbody></tbody></table></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3 class="panel-title">Attendance history</h3></div>
+          <div class="table-wrap"><table id="attHistoryTable"><thead><tr><th>Date</th><th>Class</th><th>Present</th><th>Absent</th><th>%</th></tr></thead><tbody></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- MARKS -->
+      <section class="section" id="sec-marks">
+        <div class="panel">
+          <div class="panel-head">
+            <h3 class="panel-title">Marks record</h3>
+            <button class="btn btn-primary btn-sm" id="btnAddMark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M12 5v14M5 12h14"/></svg>Add marks</button>
+          </div>
+          <div class="table-wrap"><table id="marksTable"><thead><tr><th>Student</th><th>Class</th><th>Subject</th><th>Exam</th><th>Marks</th><th></th></tr></thead><tbody></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- FEES -->
+      <section class="section" id="sec-fees">
+        <div class="panel">
+          <div class="panel-head">
+            <h3 class="panel-title">Fee records</h3>
+            <button class="btn btn-primary btn-sm" id="btnAddFee"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M12 5v14M5 12h14"/></svg>Add fee record</button>
+          </div>
+          <div class="table-wrap"><table id="feesTable"><thead><tr><th>Student</th><th>Class</th><th>Amount</th><th>Status</th><th>Date</th><th></th></tr></thead><tbody></tbody></table></div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="overlay" id="modalStudent">
+  <div class="modal">
+    <div class="modal-head"><h3 id="studentModalTitle">Add student</h3><button class="icon-btn" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+    <div class="modal-body">
+      <div class="photo-upload">
+        <img id="studentPhotoPreview" class="photo-preview" src="">
+        <button class="btn btn-sm file-btn">Upload photo<input type="file" id="studentPhotoInput" accept="image/*"></button>
+      </div>
+      <div class="field"><label>Full name</label><input type="text" id="studentName" placeholder="e.g. Ayesha Khan"></div>
+      <div class="field-row">
+        <div class="field"><label>Class</label><input type="text" id="studentClass" placeholder="e.g. Grade 6-A"></div>
+        <div class="field"><label>Roll number</label><input type="text" id="studentRoll" placeholder="e.g. 21"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Guardian name</label><input type="text" id="studentGuardian" placeholder="Optional"></div>
+        <div class="field"><label>Contact number</label><input type="text" id="studentContact" placeholder="Optional"></div>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn" data-close>Cancel</button><button class="btn btn-primary" id="saveStudentBtn">Save student</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="modalTeacher">
+  <div class="modal">
+    <div class="modal-head"><h3 id="teacherModalTitle">Add teacher</h3><button class="icon-btn" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+    <div class="modal-body">
+      <div class="photo-upload">
+        <img id="teacherPhotoPreview" class="photo-preview" src="">
+        <button class="btn btn-sm file-btn">Upload photo<input type="file" id="teacherPhotoInput" accept="image/*"></button>
+      </div>
+      <div class="field"><label>Full name</label><input type="text" id="teacherName" placeholder="e.g. Mr. Farhan Ali"></div>
+      <div class="field-row">
+        <div class="field"><label>Subject</label><input type="text" id="teacherSubject" placeholder="e.g. Mathematics"></div>
+        <div class="field"><label>Class in-charge</label><input type="text" id="teacherClass" placeholder="Optional"></div>
+      </div>
+      <div class="field"><label>Contact number</label><input type="text" id="teacherContact" placeholder="Optional"></div>
+    </div>
+    <div class="modal-foot"><button class="btn" data-close>Cancel</button><button class="btn btn-primary" id="saveTeacherBtn">Save teacher</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="modalMark">
+  <div class="modal">
+    <div class="modal-head"><h3>Add marks</h3><button class="icon-btn" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+    <div class="modal-body">
+      <div class="field"><label>Student</label><select id="markStudent"></select></div>
+      <div class="field-row">
+        <div class="field"><label>Subject</label><input type="text" id="markSubject" placeholder="e.g. Science"></div>
+        <div class="field"><label>Exam</label><input type="text" id="markExam" placeholder="e.g. Midterm"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Marks obtained</label><input type="number" id="markObtained" placeholder="e.g. 78"></div>
+        <div class="field"><label>Total marks</label><input type="number" id="markTotal" placeholder="e.g. 100"></div>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn" data-close>Cancel</button><button class="btn btn-primary" id="saveMarkBtn">Save marks</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="modalFee">
+  <div class="modal">
+    <div class="modal-head"><h3>Add fee record</h3><button class="icon-btn" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+    <div class="modal-body">
+      <div class="field"><label>Student</label><select id="feeStudent"></select></div>
+      <div class="field-row">
+        <div class="field"><label>Amount (Rs)</label><input type="number" id="feeAmount" placeholder="e.g. 5000"></div>
+        <div class="field"><label>Status</label><select id="feeStatus"><option value="due">Due</option><option value="paid">Paid</option></select></div>
+      </div>
+      <div class="field"><label>Date</label><input type="date" id="feeDate"></div>
+    </div>
+    <div class="modal-foot"><button class="btn" data-close>Cancel</button><button class="btn btn-primary" id="saveFeeBtn">Save record</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="modalBackground">
+  <div class="modal">
+    <div class="modal-head"><h3>Change background</h3><button class="icon-btn" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--muted);margin-top:0;">Pick a campus scene, a solid colour, or upload your own photo.</p>
+      <p style="font-size:11.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 8px;">Photo scenes</p>
+      <div class="bg-options" id="bgPresetOptions"></div>
+      <p style="font-size:11.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 8px;">Solid colours</p>
+      <div class="bg-colors" id="bgColorOptions"></div>
+      <button class="btn btn-sm file-btn" style="width:100%;justify-content:center;">Upload your own image<input type="file" id="bgUploadInput" accept="image/*"></button>
+    </div>
+    <div class="modal-foot"><button class="btn" data-close>Done</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="modalSettings">
+  <div class="modal">
+    <div class="modal-head"><h3>Settings</h3><button class="icon-btn" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+    <div class="modal-body">
+      <div class="field"><label>School name</label><input type="text" id="settingSchoolName" placeholder="e.g. Greenfield Campus"></div>
+      <div class="field"><label>Currency label</label><input type="text" id="settingCurrency" placeholder="e.g. Rs, $, PKR"></div>
+      <div class="field" style="border-top:1px solid var(--border);padding-top:14px;">
+        <label>Appearance</label>
+        <button class="btn btn-sm" id="btnBackground"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>Change background</button>
+      </div>
+      <div class="field" style="border-top:1px solid var(--border);padding-top:14px;">
+        <label>Backup</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-sm" id="btnExportData"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M4 17v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>Export data</button>
+          <button class="btn btn-sm file-btn">Import data<input type="file" id="btnImportData" accept="application/json"></button>
+        </div>
+      </div>
+      <div class="field" style="border-top:1px solid var(--border);padding-top:14px;margin-bottom:0;">
+        <label>Danger zone</label>
+        <button class="btn btn-danger btn-sm" id="btnClearData"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>Clear all data</button>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn" data-close>Cancel</button><button class="btn btn-primary" id="saveSettingsBtn">Save settings</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+
+/* Local storage shim: this app runs as a standalone downloaded file, opened
+   directly in the browser, so it uses the browser's own localStorage rather
+   than the Claude.ai artifact storage API (which only exists inside
+   Claude.ai's viewer and is unavailable in a plain downloaded file). */
+var storage = {
+  get: function(key){
+    try{
+      var v = localStorage.getItem(key);
+      return Promise.resolve(v !== null ? { key: key, value: v } : null);
+    }catch(e){ return Promise.reject(e); }
+  },
+  set: function(key, value){
+    try{
+      localStorage.setItem(key, value);
+      return Promise.resolve({ key: key, value: value });
+    }catch(e){ return Promise.reject(e); }
+  }
+};
+
+var state = { students: [], teachers: [], attendance: [], marks: [], fees: [], settings: { schoolName: 'Greenfield Campus', currency: 'Rs' } };
+
+function fmtMoney(n){ return (state.settings.currency||'Rs') + ' ' + Number(n||0).toLocaleString(); }
+function applySettingsToUI(){
+  document.getElementById('brandName').textContent = state.settings.schoolName || 'Greenfield Campus';
+  document.getElementById('brandBadge').textContent = (state.settings.schoolName||'G').trim().charAt(0).toUpperCase() || 'G';
+  document.title = (state.settings.schoolName || 'Greenfield Campus') + ' — School Management';
+}
+var editingStudentId = null, editingTeacherId = null;
+var pendingStudentPhoto = null, pendingTeacherPhoto = null;
+
+var BG_PRESETS = [
+  { name:"Campus lawn", url:"https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1200&q=70" },
+  { name:"Classroom", url:"https://images.unsplash.com/photo-1509062522246-3755977927d7?w=1200&q=70" },
+  { name:"Library", url:"https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=1200&q=70" },
+  { name:"Graduation", url:"https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=1200&q=70" }
+];
+
+var BG_COLORS = [
+  { name:"Navy", hex:"#16324F" },
+  { name:"Forest", hex:"#2F5233" },
+  { name:"Maroon", hex:"#7A2A2A" },
+  { name:"Brass", hex:"#8A6218" },
+  { name:"Slate", hex:"#3E4C59" },
+  { name:"Plum", hex:"#4B2E52" },
+  { name:"Teal", hex:"#1F5A57" },
+  { name:"Charcoal", hex:"#23262B" }
+];
+
+var STRIPE_COLORS = ["#B98B2A","#2F5233","#16324F","#A83232","#6b5b95","#3d7a8c"];
+function colorFor(str){
+  var h = 0;
+  for (var i=0;i<str.length;i++){ h = str.charCodeAt(i) + ((h<<5)-h); }
+  return STRIPE_COLORS[Math.abs(h) % STRIPE_COLORS.length];
+}
+function initials(name){
+  if(!name) return "?";
+  var parts = name.trim().split(/\s+/);
+  return ((parts[0]||"")[0]||"") + ((parts[1]||"")[0]||"");
+}
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+
+function toast(msg){
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function(){ t.classList.remove('show'); }, 2200);
+}
+
+/* ---------- STORAGE ---------- */
+function loadAll(){
+  Promise.all([
+    storage.get('school-data').catch(function(){return null;}),
+    storage.get('school-background').catch(function(){return null;})
+  ]).then(function(res){
+    var data = res[0];
+    var bg = res[1];
+    if(data && data.value){
+      try{
+        var parsed = JSON.parse(data.value);
+        state.students = parsed.students || [];
+        state.teachers = parsed.teachers || [];
+        state.attendance = parsed.attendance || [];
+        state.marks = parsed.marks || [];
+        state.fees = parsed.fees || [];
+        state.settings = parsed.settings || state.settings;
+      }catch(e){}
+    }
+    if(bg && bg.value){
+      try{
+        var b = JSON.parse(bg.value);
+        if(!b.type) b = { type:'image', value:b.value };
+        applyBackground(b, false);
+      }catch(e){ applyBackground({type:'image', value:BG_PRESETS[0].url}, false); }
+    } else {
+      applyBackground({type:'image', value:BG_PRESETS[0].url}, false);
+    }
+    applySettingsToUI();
+    renderAll();
+  }).catch(function(){
+    applyBackground({type:'image', value:BG_PRESETS[0].url}, false);
+    applySettingsToUI();
+    renderAll();
+  });
+}
+
+function saveAll(showToast){
+  storage.set('school-data', JSON.stringify(state)).then(function(res){
+    if(res && showToast) toast('All data saved');
+    if(!res && showToast) toast('Save failed — try again');
+  }).catch(function(){ if(showToast) toast('Save failed — try again'); });
+}
+
+var currentBg = { type:'image', value: BG_PRESETS[0].url };
+function applyBackground(bg, persist){
+  currentBg = bg;
+  var layer = document.getElementById('bg-layer');
+  var tint = document.getElementById('bg-tint');
+  if(bg.type === 'color'){
+    layer.style.backgroundImage = 'none';
+    layer.style.backgroundColor = bg.value;
+    tint.style.background = 'linear-gradient(160deg, rgba(0,0,0,.18), rgba(0,0,0,.30))';
+  } else {
+    layer.style.backgroundColor = 'transparent';
+    layer.style.backgroundImage = "url('"+bg.value+"')";
+    tint.style.background = 'linear-gradient(160deg, rgba(14,36,54,.90), rgba(22,50,79,.86))';
+  }
+  if(persist){
+    storage.set('school-background', JSON.stringify(bg)).then(function(){
+      toast('Background updated');
+    }).catch(function(){ toast('Could not save background'); });
+  }
+  renderBgOptions();
+}
+
+/* ---------- NAVIGATION ---------- */
+var TITLES = {dashboard:"Dashboard", students:"Students", teachers:"Teachers", attendance:"Attendance", marks:"Marks", fees:"Fee records"};
+document.getElementById('nav').addEventListener('click', function(e){
+  var btn = e.target.closest('.nav-item');
+  if(!btn) return;
+  document.querySelectorAll('.nav-item').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  var sec = btn.dataset.section;
+  document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
+  document.getElementById('sec-'+sec).classList.add('active');
+  document.getElementById('pageTitle').textContent = TITLES[sec];
+  document.getElementById('searchInput').value = '';
+  applySearch('');
+});
+
+/* ---------- RENDER: DASHBOARD ---------- */
+function renderDashboard(){
+  document.getElementById('statStudents').textContent = state.students.length;
+  var classCount = new Set(state.students.map(function(s){return s.cls;})).size;
+  document.getElementById('statStudentsSub').textContent = classCount + (classCount===1?" class":" classes");
+  document.getElementById('statTeachers').textContent = state.teachers.length;
+
+  var today = new Date().toISOString().slice(0,10);
+  var todays = state.attendance.filter(function(a){ return a.date===today; });
+  if(todays.length){
+    var present=0, total=0;
+    todays.forEach(function(a){
+      Object.values(a.records).forEach(function(v){ total++; if(v==='present') present++; });
+    });
+    var pct = total? Math.round(present/total*100):0;
+    document.getElementById('statAttendance').textContent = pct+'%';
+    document.getElementById('statAttendanceSub').textContent = present+' of '+total+' present';
+  } else {
+    document.getElementById('statAttendance').textContent = '—';
+    document.getElementById('statAttendanceSub').textContent = 'No records for today yet';
+  }
+
+  var due = state.fees.filter(function(f){return f.status==='due';});
+  var dueSum = due.reduce(function(a,f){return a+Number(f.amount||0);},0);
+  document.getElementById('statFeesDue').textContent = fmtMoney(dueSum);
+  document.getElementById('statFeesSub').textContent = due.length + ' account' + (due.length===1?'':'s') + ' pending';
+
+  var recent = state.students.slice(-4).reverse();
+  document.getElementById('recentStudents').innerHTML = recent.length ? recent.map(studentCardHTML).join('') : emptyHTML('No students added yet.');
+  var teach = state.teachers.slice(-4).reverse();
+  document.getElementById('recentTeachers').innerHTML = teach.length ? teach.map(teacherCardHTML).join('') : emptyHTML('No teachers added yet.');
+}
+
+function emptyHTML(msg){
+  return '<div class="empty" style="grid-column:1/-1;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12h6M9 16h6M9 8h6M5 21h14a2 2 0 0 0 2-2V7l-5-5H5a2 2 0 0 0-2 2v15a2 2 0 0 0 2 2Z"/></svg><div>'+esc(msg)+'</div></div>';
+}
+
+/* ---------- RENDER: STUDENTS ---------- */
+function studentCardHTML(s){
+  var stripe = colorFor(s.cls||'x');
+  var photo = s.photo ? '<img class="id-photo" src="'+s.photo+'">' : '<div class="id-photo">'+esc(initials(s.name))+'</div>';
+  return '<div class="id-card" data-id="'+s.id+'">'+
+    '<div class="id-stripe" style="background:'+stripe+'"></div>'+
+    '<div class="id-body">'+photo+
+      '<div class="id-info"><p class="id-name" title="'+esc(s.name)+'">'+esc(s.name)+'</p>'+
+      '<p class="id-meta">'+esc(s.cls||'—')+'</p>'+
+      '<span class="id-roll mono">Roll '+esc(s.roll||'—')+'</span></div>'+
+    '</div>'+
+    '<div class="id-foot">'+
+      '<button class="icon-btn" data-edit-student="'+s.id+'" aria-label="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5Z"/></svg></button>'+
+      '<button class="icon-btn danger" data-del-student="'+s.id+'" aria-label="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg></button>'+
+    '</div></div>';
+}
+
+function renderStudents(filterText){
+  filterText = (filterText||'').toLowerCase();
+  var classFilter = document.getElementById('classFilter').value;
+  var list = state.students.filter(function(s){
+    var matchesText = !filterText || (s.name||'').toLowerCase().indexOf(filterText)>-1 || (s.cls||'').toLowerCase().indexOf(filterText)>-1 || String(s.roll||'').toLowerCase().indexOf(filterText)>-1;
+    var matchesClass = !classFilter || s.cls===classFilter;
+    return matchesText && matchesClass;
+  });
+  document.getElementById('studentGrid').innerHTML = list.length ? list.map(studentCardHTML).join('') : emptyHTML('No students match your search.');
+
+  var classes = Array.from(new Set(state.students.map(function(s){return s.cls;}).filter(Boolean))).sort();
+  var sel = document.getElementById('classFilter');
+  var cur = sel.value;
+  sel.innerHTML = '<option value="">All classes</option>' + classes.map(function(c){return '<option value="'+esc(c)+'">'+esc(c)+'</option>';}).join('');
+  sel.value = cur;
+}
+
+/* ---------- RENDER: TEACHERS ---------- */
+function teacherCardHTML(t){
+  var stripe = colorFor(t.subject||'y');
+  var photo = t.photo ? '<img class="id-photo" src="'+t.photo+'">' : '<div class="id-photo">'+esc(initials(t.name))+'</div>';
+  return '<div class="id-card" data-id="'+t.id+'">'+
+    '<div class="id-stripe" style="background:'+stripe+'"></div>'+
+    '<div class="id-body">'+photo+
+      '<div class="id-info"><p class="id-name" title="'+esc(t.name)+'">'+esc(t.name)+'</p>'+
+      '<p class="id-meta">'+esc(t.subject||'—')+'</p>'+
+      (t.cls?'<span class="id-roll mono">'+esc(t.cls)+'</span>':'')+
+      '</div></div>'+
+    '<div class="id-foot">'+
+      '<button class="icon-btn" data-edit-teacher="'+t.id+'" aria-label="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5Z"/></svg></button>'+
+      '<button class="icon-btn danger" data-del-teacher="'+t.id+'" aria-label="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg></button>'+
+    '</div></div>';
+}
+
+function renderTeachers(filterText){
+  filterText = (filterText||'').toLowerCase();
+  var list = state.teachers.filter(function(t){
+    return !filterText || (t.name||'').toLowerCase().indexOf(filterText)>-1 || (t.subject||'').toLowerCase().indexOf(filterText)>-1;
+  });
+  document.getElementById('teacherGrid').innerHTML = list.length ? list.map(teacherCardHTML).join('') : emptyHTML('No teachers match your search.');
+}
+
+/* ---------- ATTENDANCE ---------- */
+function populateAttClassSelect(){
+  var classes = Array.from(new Set(state.students.map(function(s){return s.cls;}).filter(Boolean))).sort();
+  var sel = document.getElementById('attClass');
+  var cur = sel.value;
+  sel.innerHTML = classes.length ? classes.map(function(c){return '<option value="'+esc(c)+'">'+esc(c)+'</option>';}).join('') : '<option value="">No classes yet</option>';
+  if(classes.indexOf(cur)>-1) sel.value = cur;
+}
+
+function currentAttRecord(){
+  var date = document.getElementById('attDate').value;
+  var cls = document.getElementById('attClass').value;
+  var rec = state.attendance.find(function(a){ return a.date===date && a.cls===cls; });
+  if(!rec){ rec = {id:uid(), date:date, cls:cls, records:{}}; state.attendance.push(rec); }
+  return rec;
+}
+
+function renderAttendanceTable(){
+  var cls = document.getElementById('attClass').value;
+  var tbody = document.querySelector('#attTable tbody');
+  var studentsInClass = state.students.filter(function(s){ return s.cls===cls; });
+  if(!cls || !studentsInClass.length){
+    tbody.innerHTML = '<tr><td colspan="3" class="empty">Select a class with students to mark attendance.</td></tr>';
+    return;
+  }
+  var date = document.getElementById('attDate').value;
+  var rec = state.attendance.find(function(a){ return a.date===date && a.cls===cls; });
+  var records = rec ? rec.records : {};
+  tbody.innerHTML = studentsInClass.map(function(s){
+    var status = records[s.id] || 'present';
+    return '<tr><td class="mono">'+esc(s.roll||'—')+'</td><td>'+esc(s.name)+'</td><td>'+
+      '<select data-att-student="'+s.id+'" class="btn-sm">'+
+      '<option value="present"'+(status==='present'?' selected':'')+'>Present</option>'+
+      '<option value="absent"'+(status==='absent'?' selected':'')+'>Absent</option>'+
+      '</select></td></tr>';
+  }).join('');
+}
+
+function renderAttendanceHistory(){
+  var tbody = document.querySelector('#attHistoryTable tbody');
+  var rows = state.attendance.slice().sort(function(a,b){ return b.date.localeCompare(a.date); }).slice(0,40);
+  if(!rows.length){ tbody.innerHTML = '<tr><td colspan="5" class="empty">No attendance recorded yet.</td></tr>'; return; }
+  tbody.innerHTML = rows.map(function(r){
+    var vals = Object.values(r.records);
+    var present = vals.filter(function(v){return v==='present';}).length;
+    var absent = vals.filter(function(v){return v==='absent';}).length;
+    var total = vals.length || 1;
+    var pct = Math.round(present/total*100);
+    return '<tr><td class="mono">'+esc(r.date)+'</td><td>'+esc(r.cls)+'</td><td>'+present+'</td><td>'+absent+'</td><td>'+pct+'%</td></tr>';
+  }).join('');
+}
+
+document.getElementById('attClass').addEventListener('change', renderAttendanceTable);
+document.getElementById('attDate').addEventListener('change', renderAttendanceTable);
+document.querySelector('#attTable').addEventListener('change', function(e){
+  var sel = e.target.closest('[data-att-student]');
+  if(!sel) return;
+  var rec = currentAttRecord();
+  rec.records[sel.dataset.attStudent] = sel.value;
+  renderAttendanceHistory();
+  renderDashboard();
+});
+
+/* ---------- MARKS ---------- */
+function renderMarksTable(){
+  var tbody = document.querySelector('#marksTable tbody');
+  if(!state.marks.length){ tbody.innerHTML = '<tr><td colspan="6" class="empty">No marks recorded yet.</td></tr>'; return; }
+  tbody.innerHTML = state.marks.slice().reverse().map(function(m){
+    var s = state.students.find(function(x){return x.id===m.studentId;});
+    return '<tr><td>'+esc(s?s.name:'Unknown')+'</td><td>'+esc(s?s.cls:'—')+'</td><td>'+esc(m.subject)+'</td><td>'+esc(m.exam)+'</td>'+
+      '<td class="mono">'+esc(m.obtained)+' / '+esc(m.total)+'</td>'+
+      '<td><button class="icon-btn danger" data-del-mark="'+m.id+'" aria-label="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg></button></td></tr>';
+  }).join('');
+}
+
+function populateStudentSelect(sel){
+  sel.innerHTML = state.students.map(function(s){ return '<option value="'+s.id+'">'+esc(s.name)+' — '+esc(s.cls||'')+'</option>'; }).join('') || '<option value="">Add a student first</option>';
+}
+
+/* ---------- FEES ---------- */
+function renderFeesTable(){
+  var tbody = document.querySelector('#feesTable tbody');
+  if(!state.fees.length){ tbody.innerHTML = '<tr><td colspan="6" class="empty">No fee records yet.</td></tr>'; return; }
+  tbody.innerHTML = state.fees.slice().reverse().map(function(f){
+    var s = state.students.find(function(x){return x.id===f.studentId;});
+    return '<tr><td>'+esc(s?s.name:'Unknown')+'</td><td>'+esc(s?s.cls:'—')+'</td><td class="mono">'+esc(fmtMoney(f.amount))+'</td>'+
+      '<td><span class="pill pill-'+f.status+'">'+esc(f.status)+'</span></td><td class="mono">'+esc(f.date||'—')+'</td>'+
+      '<td><button class="icon-btn danger" data-del-fee="'+f.id+'" aria-label="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg></button></td></tr>';
+  }).join('');
+}
+
+/* ---------- RENDER ALL ---------- */
+function renderAll(){
+  renderDashboard();
+  renderStudents(document.getElementById('searchInput').value);
+  renderTeachers(document.getElementById('searchInput').value);
+  populateAttClassSelect();
+  if(!document.getElementById('attDate').value) document.getElementById('attDate').value = new Date().toISOString().slice(0,10);
+  renderAttendanceTable();
+  renderAttendanceHistory();
+  renderMarksTable();
+  renderFeesTable();
+}
+
+/* ---------- SEARCH ---------- */
+function applySearch(text){
+  renderStudents(text);
+  renderTeachers(text);
+}
+document.getElementById('searchInput').addEventListener('input', function(e){ applySearch(e.target.value); });
+document.getElementById('classFilter').addEventListener('change', function(){ applySearch(document.getElementById('searchInput').value); });
+
+/* ---------- MODAL HELPERS ---------- */
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('[data-close]').forEach(function(b){
+  b.addEventListener('click', function(){ b.closest('.overlay').classList.remove('open'); });
+});
+document.querySelectorAll('.overlay').forEach(function(o){
+  o.addEventListener('click', function(e){ if(e.target===o) o.classList.remove('open'); });
+});
+
+function readFileAsDataURL(file, cb){
+  var reader = new FileReader();
+  reader.onload = function(){ cb(reader.result); };
+  reader.readAsDataURL(file);
+}
+
+/* ---------- STUDENT MODAL ---------- */
+document.getElementById('btnAddStudent').addEventListener('click', function(){
+  editingStudentId = null; pendingStudentPhoto = null;
+  document.getElementById('studentModalTitle').textContent = 'Add student';
+  document.getElementById('studentName').value = '';
+  document.getElementById('studentClass').value = '';
+  document.getElementById('studentRoll').value = '';
+  document.getElementById('studentGuardian').value = '';
+  document.getElementById('studentContact').value = '';
+  document.getElementById('studentPhotoPreview').src = '';
+  openModal('modalStudent');
+});
+document.getElementById('studentPhotoInput').addEventListener('change', function(e){
+  var f = e.target.files[0]; if(!f) return;
+  readFileAsDataURL(f, function(url){ pendingStudentPhoto = url; document.getElementById('studentPhotoPreview').src = url; });
+});
+document.getElementById('saveStudentBtn').addEventListener('click', function(){
+  var name = document.getElementById('studentName').value.trim();
+  if(!name){ toast('Enter a student name'); return; }
+  if(editingStudentId){
+    var s = state.students.find(function(x){return x.id===editingStudentId;});
+    s.name = name;
+    s.cls = document.getElementById('studentClass').value.trim();
+    s.roll = document.getElementById('studentRoll').value.trim();
+    s.guardian = document.getElementById('studentGuardian').value.trim();
+    s.contact = document.getElementById('studentContact').value.trim();
+    if(pendingStudentPhoto) s.photo = pendingStudentPhoto;
+  } else {
+    state.students.push({
+      id: uid(), name: name,
+      cls: document.getElementById('studentClass').value.trim(),
+      roll: document.getElementById('studentRoll').value.trim(),
+      guardian: document.getElementById('studentGuardian').value.trim(),
+      contact: document.getElementById('studentContact').value.trim(),
+      photo: pendingStudentPhoto || null
+    });
+  }
+  closeModal('modalStudent');
+  renderAll();
+  saveAll(false);
+  toast('Student saved');
+});
+
+document.getElementById('studentGrid').addEventListener('click', studentGridClick);
+document.getElementById('recentStudents').addEventListener('click', studentGridClick);
+function studentGridClick(e){
+  var editBtn = e.target.closest('[data-edit-student]');
+  var delBtn = e.target.closest('[data-del-student]');
+  if(editBtn){
+    var s = state.students.find(function(x){return x.id===editBtn.dataset.editStudent;});
+    if(!s) return;
+    editingStudentId = s.id; pendingStudentPhoto = null;
+    document.getElementById('studentModalTitle').textContent = 'Edit student';
+    document.getElementById('studentName').value = s.name||'';
+    document.getElementById('studentClass').value = s.cls||'';
+    document.getElementById('studentRoll').value = s.roll||'';
+    document.getElementById('studentGuardian').value = s.guardian||'';
+    document.getElementById('studentContact').value = s.contact||'';
+    document.getElementById('studentPhotoPreview').src = s.photo||'';
+    openModal('modalStudent');
+  } else if(delBtn){
+    if(confirm('Delete this student? This also removes their attendance, marks and fee records.')){
+      var id = delBtn.dataset.delStudent;
+      state.students = state.students.filter(function(x){return x.id!==id;});
+      state.marks = state.marks.filter(function(m){return m.studentId!==id;});
+      state.fees = state.fees.filter(function(f){return f.studentId!==id;});
+      state.attendance.forEach(function(a){ delete a.records[id]; });
+      renderAll(); saveAll(false); toast('Student deleted');
+    }
+  }
+}
+
+/* ---------- TEACHER MODAL ---------- */
+document.getElementById('btnAddTeacher').addEventListener('click', function(){
+  editingTeacherId = null; pendingTeacherPhoto = null;
+  document.getElementById('teacherModalTitle').textContent = 'Add teacher';
+  document.getElementById('teacherName').value = '';
+  document.getElementById('teacherSubject').value = '';
+  document.getElementById('teacherClass').value = '';
+  document.getElementById('teacherContact').value = '';
+  document.getElementById('teacherPhotoPreview').src = '';
+  openModal('modalTeacher');
+});
+document.getElementById('teacherPhotoInput').addEventListener('change', function(e){
+  var f = e.target.files[0]; if(!f) return;
+  readFileAsDataURL(f, function(url){ pendingTeacherPhoto = url; document.getElementById('teacherPhotoPreview').src = url; });
+});
+document.getElementById('saveTeacherBtn').addEventListener('click', function(){
+  var name = document.getElementById('teacherName').value.trim();
+  if(!name){ toast('Enter a teacher name'); return; }
+  if(editingTeacherId){
+    var t = state.teachers.find(function(x){return x.id===editingTeacherId;});
+    t.name = name;
+    t.subject = document.getElementById('teacherSubject').value.trim();
+    t.cls = document.getElementById('teacherClass').value.trim();
+    t.contact = document.getElementById('teacherContact').value.trim();
+    if(pendingTeacherPhoto) t.photo = pendingTeacherPhoto;
+  } else {
+    state.teachers.push({
+      id: uid(), name: name,
+      subject: document.getElementById('teacherSubject').value.trim(),
+      cls: document.getElementById('teacherClass').value.trim(),
+      contact: document.getElementById('teacherContact').value.trim(),
+      photo: pendingTeacherPhoto || null
+    });
+  }
+  closeModal('modalTeacher');
+  renderAll();
+  saveAll(false);
+  toast('Teacher saved');
+});
+
+document.getElementById('teacherGrid').addEventListener('click', teacherGridClick);
+document.getElementById('recentTeachers').addEventListener('click', teacherGridClick);
+function teacherGridClick(e){
+  var editBtn = e.target.closest('[data-edit-teacher]');
+  var delBtn = e.target.closest('[data-del-teacher]');
+  if(editBtn){
+    var t = state.teachers.find(function(x){return x.id===editBtn.dataset.editTeacher;});
+    if(!t) return;
+    editingTeacherId = t.id; pendingTeacherPhoto = null;
+    document.getElementById('teacherModalTitle').textContent = 'Edit teacher';
+    document.getElementById('teacherName').value = t.name||'';
+    document.getElementById('teacherSubject').value = t.subject||'';
+    document.getElementById('teacherClass').value = t.cls||'';
+    document.getElementById('teacherContact').value = t.contact||'';
+    document.getElementById('teacherPhotoPreview').src = t.photo||'';
+    openModal('modalTeacher');
+  } else if(delBtn){
+    if(confirm('Delete this teacher?')){
+      var id = delBtn.dataset.delTeacher;
+      state.teachers = state.teachers.filter(function(x){return x.id!==id;});
+      renderAll(); saveAll(false); toast('Teacher deleted');
+    }
+  }
+}
+
+/* ---------- MARKS MODAL ---------- */
+document.getElementById('btnAddMark').addEventListener('click', function(){
+  populateStudentSelect(document.getElementById('markStudent'));
+  document.getElementById('markSubject').value = '';
+  document.getElementById('markExam').value = '';
+  document.getElementById('markObtained').value = '';
+  document.getElementById('markTotal').value = '';
+  openModal('modalMark');
+});
+document.getElementById('saveMarkBtn').addEventListener('click', function(){
+  var studentId = document.getElementById('markStudent').value;
+  if(!studentId){ toast('Add a student first'); return; }
+  var subject = document.getElementById('markSubject').value.trim();
+  var exam = document.getElementById('markExam').value.trim();
+  var obtained = document.getElementById('markObtained').value;
+  var total = document.getElementById('markTotal').value;
+  if(!subject || !obtained || !total){ toast('Fill in subject and marks'); return; }
+  state.marks.push({id:uid(), studentId:studentId, subject:subject, exam:exam||'—', obtained:obtained, total:total});
+  closeModal('modalMark');
+  renderMarksTable(); saveAll(false); toast('Marks saved');
+});
+document.querySelector('#marksTable').addEventListener('click', function(e){
+  var btn = e.target.closest('[data-del-mark]');
+  if(!btn) return;
+  state.marks = state.marks.filter(function(m){return m.id!==btn.dataset.delMark;});
+  renderMarksTable(); saveAll(false); toast('Marks entry deleted');
+});
+
+/* ---------- FEES MODAL ---------- */
+document.getElementById('btnAddFee').addEventListener('click', function(){
+  populateStudentSelect(document.getElementById('feeStudent'));
+  document.getElementById('feeAmount').value = '';
+  document.getElementById('feeStatus').value = 'due';
+  document.getElementById('feeDate').value = new Date().toISOString().slice(0,10);
+  openModal('modalFee');
+});
+document.getElementById('saveFeeBtn').addEventListener('click', function(){
+  var studentId = document.getElementById('feeStudent').value;
+  if(!studentId){ toast('Add a student first'); return; }
+  var amount = document.getElementById('feeAmount').value;
+  if(!amount){ toast('Enter an amount'); return; }
+  state.fees.push({
+    id:uid(), studentId:studentId, amount:amount,
+    status:document.getElementById('feeStatus').value,
+    date:document.getElementById('feeDate').value
+  });
+  closeModal('modalFee');
+  renderFeesTable(); renderDashboard(); saveAll(false); toast('Fee record saved');
+});
+document.querySelector('#feesTable').addEventListener('click', function(e){
+  var btn = e.target.closest('[data-del-fee]');
+  if(!btn) return;
+  state.fees = state.fees.filter(function(f){return f.id!==btn.dataset.delFee;});
+  renderFeesTable(); renderDashboard(); saveAll(false); toast('Fee record deleted');
+});
+
+/* ---------- BACKGROUND MODAL ---------- */
+function renderBgOptions(){
+  document.getElementById('bgPresetOptions').innerHTML = BG_PRESETS.map(function(p){
+    var sel = (currentBg.type==='image' && p.url===currentBg.value) ? ' selected' : '';
+    return '<button type="button" class="bg-opt'+sel+'" style="background-image:url(\''+p.url+'\')" data-bg-url="'+p.url+'"><span>'+esc(p.name)+'</span></button>';
+  }).join('');
+  document.getElementById('bgColorOptions').innerHTML = BG_COLORS.map(function(c){
+    var sel = (currentBg.type==='color' && c.hex===currentBg.value) ? ' selected' : '';
+    return '<button type="button" class="bg-swatch'+sel+'" style="background:'+c.hex+'" data-bg-color="'+c.hex+'" aria-label="'+esc(c.name)+'" title="'+esc(c.name)+'"></button>';
+  }).join('');
+}
+document.getElementById('btnBackground').addEventListener('click', function(){ renderBgOptions(); closeModal('modalSettings'); openModal('modalBackground'); });
+document.getElementById('bgPresetOptions').addEventListener('click', function(e){
+  var opt = e.target.closest('[data-bg-url]');
+  if(!opt) return;
+  applyBackground({type:'image', value:opt.dataset.bgUrl}, true);
+});
+document.getElementById('bgColorOptions').addEventListener('click', function(e){
+  var opt = e.target.closest('[data-bg-color]');
+  if(!opt) return;
+  applyBackground({type:'color', value:opt.dataset.bgColor}, true);
+});
+document.getElementById('bgUploadInput').addEventListener('change', function(e){
+  var f = e.target.files[0]; if(!f) return;
+  readFileAsDataURL(f, function(url){ applyBackground({type:'image', value:url}, true); });
+});
+
+/* ---------- SETTINGS MODAL ---------- */
+document.getElementById('btnSettings').addEventListener('click', function(){
+  document.getElementById('settingSchoolName').value = state.settings.schoolName || '';
+  document.getElementById('settingCurrency').value = state.settings.currency || '';
+  openModal('modalSettings');
+});
+document.getElementById('saveSettingsBtn').addEventListener('click', function(){
+  var name = document.getElementById('settingSchoolName').value.trim();
+  var currency = document.getElementById('settingCurrency').value.trim();
+  state.settings.schoolName = name || 'Greenfield Campus';
+  state.settings.currency = currency || 'Rs';
+  applySettingsToUI();
+  renderAll();
+  saveAll(false);
+  closeModal('modalSettings');
+  toast('Settings saved');
+});
+document.getElementById('btnExportData').addEventListener('click', function(){
+  var blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = (state.settings.schoolName||'school-data').replace(/\s+/g,'-').toLowerCase() + '-backup.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('Backup downloaded');
+});
+document.getElementById('btnImportData').addEventListener('change', function(e){
+  var f = e.target.files[0]; if(!f) return;
+  var reader = new FileReader();
+  reader.onload = function(){
+    try{
+      var parsed = JSON.parse(reader.result);
+      if(!confirm('Import this backup? It will replace all current data.')) return;
+      state.students = parsed.students || [];
+      state.teachers = parsed.teachers || [];
+      state.attendance = parsed.attendance || [];
+      state.marks = parsed.marks || [];
+      state.fees = parsed.fees || [];
+      state.settings = parsed.settings || state.settings;
+      applySettingsToUI();
+      renderAll();
+      saveAll(false);
+      closeModal('modalSettings');
+      toast('Backup imported');
+    }catch(err){ toast('That file could not be read'); }
+  };
+  reader.readAsText(f);
+});
+document.getElementById('btnClearData').addEventListener('click', function(){
+  if(!confirm('Clear all students, teachers, attendance, marks and fee records? This cannot be undone.')) return;
+  state.students = []; state.teachers = []; state.attendance = []; state.marks = []; state.fees = [];
+  renderAll();
+  saveAll(false);
+  closeModal('modalSettings');
+  toast('All data cleared');
+});
+
+/* ---------- SAVE / PRINT ---------- */
+document.getElementById('btnSave').addEventListener('click', function(){ saveAll(true); });
+document.getElementById('btnPrint').addEventListener('click', function(){
+  document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('print-active'); });
+  document.querySelector('.section.active').classList.add('print-active');
+  window.print();
+});
+
+loadAll();
+})();
+</script>
+</body>
+</html>
